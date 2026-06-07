@@ -1,0 +1,14 @@
+{
+  "name": "github-migrator",
+  "version": "1.0.0",
+  "description": "Herramienta local para migrar repositorios de GitHub a organizaciones con prefijo",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
