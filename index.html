@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GitHub Org Migrator - Dashboard</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glow-bg"></div>
+    
+    <div class="container">
+        <!-- HEADER -->
+        <header class="app-header">
+            <div class="logo-area">
+                <svg class="git-icon" viewBox="0 0 16 16" version="1.1" aria-hidden="true"><path fill="currentColor" d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.35 3.12.88.01.47.01.84.01.93 0 .22-.16.47-.55.38A8.013 8.013 0 0 1 0 8c0-4.42 3.58-8 8-8z"></path></svg>
+                <div class="logo-text">
+                    <h1>GitHub <span>Migrator</span></h1>
+                    <p>Copia tus repositorios personales a tu organización de forma masiva o selectiva</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="dashboard-grid">
+            <!-- COLUMNA IZQUIERDA: CONEXIÓN Y CONFIGURACIÓN -->
+            <section class="control-panel">
+                
+                <!-- CARD 1: CONEXIÓN -->
+                <div class="card glass-card fade-in" id="connection-card">
+                    <div class="card-header">
+                        <span class="step-badge">1</span>
+                        <h2>Autenticación de GitHub</h2>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Estado desconectado -->
+                        <div id="disconnected-state" class="auth-state active">
+                            <p class="helper-text">Introduce un Token de Acceso Personal (PAT) con permisos de <code>repo</code> y <code>admin:org</code> para conectarte.</p>
+                            <div class="input-group">
+                                <input type="password" id="pat-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+                                <button id="btn-connect" class="btn btn-primary">Conectar</button>
+                            </div>
+                            <div class="pat-instructions">
+                                <a href="https://github.com/settings/tokens/new?scopes=repo,admin:org" target="_blank" class="link-hint">¿Cómo crear un token (PAT)? ↗</a>
+                            </div>
+                        </div>
+
+                        <!-- Estado conectado -->
+                        <div id="connected-state" class="auth-state">
+                            <div class="profile-widget">
+                                <img id="user-avatar" src="" alt="Avatar">
+                                <div class="profile-info">
+                                    <h3 id="user-name">Usuario</h3>
+                                    <p id="user-login">@login</p>
+                                </div>
+                                <button id="btn-disconnect" class="btn btn-secondary btn-icon" title="Desconectar">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                                </button>
+                            </div>
+                            <div class="connection-badge">
+                                <span class="dot pulse-dot"></span> Conectado localmente
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2: CONFIGURACIÓN MIGRACIÓN -->
+                <div class="card glass-card fade-in" id="config-card" style="animation-delay: 0.1s;">
+                    <div class="card-header">
+                        <span class="step-badge">2</span>
+                        <h2>Configuración de Destino</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="select-org">Organización de Destino</label>
+                            <div class="select-wrapper">
+                                <select id="select-org" disabled>
+                                    <option value="">-- Selecciona una organización --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="input-prefix">
+                                Prefijo del Repositorio
+                                <span class="tooltip-icon" title="Se añadirá al inicio de los repositorios copiados. Ej: 'migrado-'">?</span>
+                            </label>
+                            <input type="text" id="input-prefix" placeholder="Ej: org-corp-" disabled>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Visibilidad en Organización</label>
+                            <div class="visibility-options">
+                                <label class="radio-btn">
+                                    <input type="radio" name="visibility" value="keep" checked disabled>
+                                    <span>Original</span>
+                                </label>
+                                <label class="radio-btn">
+                                    <input type="radio" name="visibility" value="private" disabled>
+                                    <span>Privado</span>
+                                </label>
+                                <label class="radio-btn">
+                                    <input type="radio" name="visibility" value="public" disabled>
+                                    <span>Público</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- COLUMNA CENTRAL/DERECHA: REPOSITORIOS Y MIGRACIÓN -->
+            <section class="repos-panel">
+                
+                <!-- CARD 3: REPOSITORIOS -->
+                <div class="card glass-card fade-in" id="repos-card" style="animation-delay: 0.2s;">
+                    <div class="card-header split">
+                        <div class="title-with-badge">
+                            <span class="step-badge">3</span>
+                            <h2>Selección de Repositorios</h2>
+                            <span class="counter-badge" id="selected-counter">0 seleccionados</span>
+                        </div>
+                        <div class="search-box">
+                            <input type="text" id="repo-search" placeholder="Buscar repositorio..." disabled>
+                            <svg class="search-icon" viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        </div>
+                    </div>
+
+                    <div class="card-body flex-column">
+                        <div class="selection-actions">
+                            <button id="btn-select-all" class="btn-text" disabled>Seleccionar todos</button>
+                            <button id="btn-deselect-all" class="btn-text" disabled>Deseleccionar todos</button>
+                        </div>
+
+                        <div class="repos-list-container">
+                            <!-- Placeholder inicial -->
+                            <div id="repos-placeholder" class="list-placeholder">
+                                <svg viewBox="0 0 24 24" width="48" height="48" stroke="currentColor" stroke-width="1.5" fill="none" class="floating-icon"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                                <p>Conecta tu cuenta para listar tus repositorios personales</p>
+                            </div>
+                            <!-- Spinner de carga -->
+                            <div id="repos-loader" class="list-loader hidden">
+                                <div class="spinner"></div>
+                                <p>Cargando repositorios desde GitHub...</p>
+                            </div>
+                            <!-- Lista real -->
+                            <ul id="repos-list" class="repos-list hidden">
+                                <!-- Se llena dinámicamente -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 4: MIGRACIÓN Y LOGS -->
+                <div class="card glass-card fade-in" id="progress-card" style="animation-delay: 0.3s;">
+                    <div class="card-header">
+                        <span class="step-badge">4</span>
+                        <h2>Ejecución y Logs en Vivo</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="action-footer">
+                            <button id="btn-start-migration" class="btn btn-action btn-large" disabled>
+                                <svg class="play-icon" viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                Iniciar Copia de Repositorios
+                            </button>
+                        </div>
+
+                        <div id="migration-progress-wrapper" class="progress-wrapper hidden">
+                            <div class="progress-header">
+                                <span id="progress-text">Migrando: 0%</span>
+                                <span id="progress-status">Preparando...</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div id="progress-bar" class="progress-bar"></div>
+                            </div>
+                        </div>
+
+                        <div class="terminal-container">
+                            <div class="terminal-header">
+                                <span class="term-dot red"></span>
+                                <span class="term-dot yellow"></span>
+                                <span class="term-dot green"></span>
+                                <span class="term-title">consola@local-server</span>
+                                <button id="btn-clear-terminal" class="btn-clear-term" title="Limpiar Consola">Limpiar</button>
+                            </div>
+                            <div id="terminal-output" class="terminal-output">
+                                <div class="term-line system">Listo. Introduce tu Token de GitHub para comenzar.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="app.js"></script>
+</body>
+</html>
